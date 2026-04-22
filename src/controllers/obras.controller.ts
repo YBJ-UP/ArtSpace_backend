@@ -155,7 +155,6 @@ export const editarObra = async (req: RequestConUsuario, res: Response) => {
   const { titulo, descripcion, subcategorias } = req.body
 
   try {
-    // Verificar que la obra pertenece al usuario
     const obra = await pool.query(
       'SELECT id_obra FROM obras WHERE id_obra = $1 AND id_usuario = $2',
       [id, req.usuario!.id_usuario]
@@ -165,7 +164,6 @@ export const editarObra = async (req: RequestConUsuario, res: Response) => {
       return res.status(403).json({ error: 'No tienes permiso para editar esta obra' })
     }
 
-    // Actualizar campos
     const campos: string[] = []
     const valores: any[] = []
     let contador = 1
@@ -182,26 +180,35 @@ export const editarObra = async (req: RequestConUsuario, res: Response) => {
       contador++
     }
 
-    if (campos.length > 0) {
-      valores.push(id)
-      await pool.query(
-        `UPDATE obras SET ${campos.join(', ')} WHERE id_obra = $${contador}`,
-        valores
-      )
-    }
+    const client = await pool.connect()
+    try {
+      await client.query('BEGIN')
+      await client.query('SET LOCAL app.current_user_id = $1', [req.usuario!.id_usuario])
 
-    // Actualizar subcategorías
-    if (subcategorias && Array.isArray(subcategorias)) {
-      await pool.query(
-        'DELETE FROM obra_subcategoria WHERE id_obra = $1',
-        [id]
-      )
-      for (const id_subcategoria of subcategorias) {
-        await pool.query(
-          'INSERT INTO obra_subcategoria (id_obra, id_subcategoria) VALUES ($1, $2)',
-          [id, id_subcategoria]
+      if (campos.length > 0) {
+        valores.push(id)
+        await client.query(
+          `UPDATE obras SET ${campos.join(', ')} WHERE id_obra = $${contador}`,
+          valores
         )
       }
+
+      if (subcategorias && Array.isArray(subcategorias)) {
+        await client.query('DELETE FROM obra_subcategoria WHERE id_obra = $1', [id])
+        for (const id_subcategoria of subcategorias) {
+          await client.query(
+            'INSERT INTO obra_subcategoria (id_obra, id_subcategoria) VALUES ($1, $2)',
+            [id, id_subcategoria]
+          )
+        }
+      }
+
+      await client.query('COMMIT')
+    } catch (err) {
+      await client.query('ROLLBACK')
+      throw err
+    } finally {
+      client.release()
     }
 
     return res.json({ mensaje: 'Obra actualizada correctamente' })
@@ -214,17 +221,34 @@ export const eliminarObra = async (req: RequestConUsuario, res: Response) => {
   const { id } = req.params
 
   try {
-    // Verificar que la obra pertenece al usuario o es admin
     const obra = await pool.query(
-      'SELECT id_obra FROM obras WHERE id_obra = $1 AND id_usuario = $2',
-      [id, req.usuario!.id_usuario]
+      'SELECT id_obra, id_usuario FROM obras WHERE id_obra = $1',
+      [id]
     )
 
-    if (obra.rows.length === 0 && req.usuario!.rol !== 'admin') {
+    if (obra.rows.length === 0) {
+      return res.status(404).json({ error: 'Obra no encontrada' })
+    }
+
+    const esOwner = obra.rows[0].id_usuario === req.usuario!.id_usuario
+    const esAdmin = req.usuario!.rol === 'admin'
+
+    if (!esOwner && !esAdmin) {
       return res.status(403).json({ error: 'No tienes permiso para eliminar esta obra' })
     }
 
-    await pool.query('DELETE FROM obras WHERE id_obra = $1', [id])
+    const client = await pool.connect()
+    try {
+      await client.query('BEGIN')
+      await client.query('SET LOCAL app.current_user_id = $1', [obra.rows[0].id_usuario])
+      await client.query('DELETE FROM obras WHERE id_obra = $1', [id])
+      await client.query('COMMIT')
+    } catch (err) {
+      await client.query('ROLLBACK')
+      throw err
+    } finally {
+      client.release()
+    }
 
     return res.json({ mensaje: 'Obra eliminada correctamente' })
   } catch (error) {

@@ -68,15 +68,6 @@ export const editarPerfil = async (
       avatarUrl = resultado
     }
 
-    // Actualizar nombre si se mandó
-    if (nombre) {
-      await pool.query(
-        'UPDATE usuarios SET nombre = $1 WHERE id_usuario = $2',
-        [nombre, req.usuario!.id_usuario]
-      )
-    }
-
-    // Actualizar perfil
     const campos: string[] = []
     const valores: any[] = []
     let contador = 1
@@ -93,12 +84,32 @@ export const editarPerfil = async (
       contador++
     }
 
-    if (campos.length > 0) {
-      valores.push(req.usuario!.id_usuario)
-      await pool.query(
-        `UPDATE perfiles SET ${campos.join(', ')} WHERE id_usuario = $${contador}`,
-        valores
-      )
+    const client = await pool.connect()
+    try {
+      await client.query('BEGIN')
+      await client.query('SET LOCAL app.current_user_id = $1', [req.usuario!.id_usuario])
+
+      if (nombre) {
+        await client.query(
+          'UPDATE usuarios SET nombre = $1 WHERE id_usuario = $2',
+          [nombre, req.usuario!.id_usuario]
+        )
+      }
+
+      if (campos.length > 0) {
+        valores.push(req.usuario!.id_usuario)
+        await client.query(
+          `UPDATE perfiles SET ${campos.join(', ')} WHERE id_usuario = $${contador}`,
+          valores
+        )
+      }
+
+      await client.query('COMMIT')
+    } catch (err) {
+      await client.query('ROLLBACK')
+      throw err
+    } finally {
+      client.release()
     }
 
     return res.json({ mensaje: 'Perfil actualizado correctamente' })

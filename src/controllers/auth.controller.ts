@@ -29,12 +29,6 @@ export const registro = async (req: Request, res: Response) => {
 
     const usuario = resultado.rows[0]
 
-    // Crear perfil vacío automáticamente
-    await pool.query(
-      'INSERT INTO perfiles (id_usuario) VALUES ($1)',
-      [usuario.id_usuario]
-    )
-
     // Generar token
     const token = jwt.sign(
       { id_usuario: usuario.id_usuario, correo: usuario.correo, rol: usuario.rol },
