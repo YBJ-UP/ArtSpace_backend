@@ -9,19 +9,8 @@ export const obtenerPerfilPropio = async (
 ) => {
   try {
     const resultado = await pool.query(
-      `SELECT u.id_usuario, u.nombre, u.correo, u.rol, u.fecha_registro,
-              p.biografia, p.avatar,
-              COUNT(DISTINCT o.id_obra) AS total_obras,
-              COUNT(DISTINCT s1.id_seguidor) AS seguidores,
-              COUNT(DISTINCT s2.id_seguidor) AS siguiendo
-       FROM usuarios u
-       LEFT JOIN perfiles p ON u.id_usuario = p.id_usuario
-       LEFT JOIN obras o ON u.id_usuario = o.id_usuario
-       LEFT JOIN seguidores s1 ON u.id_usuario = s1.usuario_destino
-       LEFT JOIN seguidores s2 ON u.id_usuario = s2.usuario_origen
-       WHERE u.id_usuario = $1
-       GROUP BY u.id_usuario, p.biografia, p.avatar`,
-      [req.usuario!.id_usuario]
+      `SELECT * FROM vw_detalles_perfil WHERE correo = $1`,
+      [req.usuario!.correo]
     )
 
     return res.json(resultado.rows[0])
