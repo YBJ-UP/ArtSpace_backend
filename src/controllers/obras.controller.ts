@@ -61,43 +61,26 @@ export const obtenerObras = async (req: RequestConUsuario, res: Response) => {
   const { categoria, subcategoria, busqueda } = req.query
 
   try {
-    let query = `
-      SELECT o.id_obra, o.titulo, o.descripcion, o.fecha_publicacion,
-             u.nombre AS autor, u.id_usuario,
-             p.avatar AS autor_avatar,
-             m.archivo AS imagen,
-             COUNT(DISTINCT l.id_like) AS likes,
-             COUNT(DISTINCT c.id_comentario) AS comentarios,
-             ARRAY_AGG(DISTINCT s.nombre) FILTER (WHERE s.nombre IS NOT NULL) AS subcategorias
-      FROM obras o
-      JOIN usuarios u ON o.id_usuario = u.id_usuario
-      LEFT JOIN perfiles p ON u.id_usuario = p.id_usuario
-      LEFT JOIN media m ON o.id_obra = m.id_obra
-      LEFT JOIN likes l ON o.id_obra = l.id_obra
-      LEFT JOIN comentarios c ON o.id_obra = c.id_obra
-      LEFT JOIN obra_subcategoria os ON o.id_obra = os.id_obra
-      LEFT JOIN subcategorias s ON os.id_subcategoria = s.id_subcategoria
-      LEFT JOIN categorias cat ON s.id_categoria = cat.id_categoria
-    `
+    let query = `SELECT * FROM vw_detalles_obra`
 
     const condiciones: string[] = []
     const valores: any[] = []
     let contador = 1
 
     if (categoria) {
-      condiciones.push(`cat.id_categoria = $${contador}`)
+      condiciones.push(`categoria = $${contador}`)
       valores.push(categoria)
       contador++
     }
 
     if (subcategoria) {
-      condiciones.push(`s.id_subcategoria = $${contador}`)
+      condiciones.push(`subcategoria = $${contador}`)
       valores.push(subcategoria)
       contador++
     }
 
     if (busqueda) {
-      condiciones.push(`(o.titulo ILIKE $${contador} OR u.nombre ILIKE $${contador})`)
+      condiciones.push(`(titulo ILIKE $${contador} OR autor ILIKE $${contador})`)
       valores.push(`%${busqueda}%`)
       contador++
     }
@@ -106,8 +89,7 @@ export const obtenerObras = async (req: RequestConUsuario, res: Response) => {
       query += ` WHERE ${condiciones.join(' AND ')}`
     }
 
-    query += ` GROUP BY o.id_obra, u.nombre, u.id_usuario, p.avatar, m.archivo
-               ORDER BY o.fecha_publicacion DESC`
+    query += ` ORDER BY fecha_publicacion DESC`
 
     const resultado = await pool.query(query, valores)
     return res.json(resultado.rows)
@@ -120,25 +102,11 @@ export const obtenerObraDetalle = async (
   req: RequestConUsuario,
   res: Response
 ) => {
-  const { id } = req.params
+  const id = req.params.id as string
 
   try {
     const obraResultado = await pool.query(
-      `SELECT o.id_obra, o.titulo, o.descripcion, o.fecha_publicacion,
-              u.nombre AS autor, u.id_usuario,
-              p.avatar AS autor_avatar,
-              m.archivo AS imagen,
-              COUNT(DISTINCT l.id_like) AS likes,
-              ARRAY_AGG(DISTINCT s.nombre) FILTER (WHERE s.nombre IS NOT NULL) AS subcategorias
-       FROM obras o
-       JOIN usuarios u ON o.id_usuario = u.id_usuario
-       LEFT JOIN perfiles p ON u.id_usuario = p.id_usuario
-       LEFT JOIN media m ON o.id_obra = m.id_obra
-       LEFT JOIN likes l ON o.id_obra = l.id_obra
-       LEFT JOIN obra_subcategoria os ON o.id_obra = os.id_obra
-       LEFT JOIN subcategorias s ON os.id_subcategoria = s.id_subcategoria
-       WHERE o.id_obra = $1
-       GROUP BY o.id_obra, u.nombre, u.id_usuario, p.avatar, m.archivo`,
+      `SELECT * FROM vw_detalles_obra WHERE id_obra = $1`,
       [id]
     )
 
@@ -146,7 +114,7 @@ export const obtenerObraDetalle = async (
       return res.status(404).json({ error: 'Obra no encontrada' })
     }
 
-    // Obtener comentarios de la obra
+    // Comentarios siguen igual porque la vista no los incluye
     const comentariosResultado = await pool.query(
       `SELECT c.id_comentario, c.contenido, c.fecha,
               u.nombre AS autor, u.id_usuario, p.avatar AS autor_avatar,
