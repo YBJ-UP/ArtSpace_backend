@@ -26,17 +26,19 @@ export const obtenerPerfilUsuario = async (
   const id = req.params.id as string
 
   try {
-    const resultado = await pool.query(
-      `SELECT * FROM vw_detalles_perfil
-       WHERE correo = (
-         SELECT correo FROM usuarios WHERE id_usuario = $1
-       )`,
+    const usuarioRes = await pool.query(
+      'SELECT correo FROM usuarios WHERE id_usuario = $1',
       [id]
     )
 
-    if (resultado.rows.length === 0) {
+    if (usuarioRes.rows.length === 0) {
       return res.status(404).json({ error: 'Usuario no encontrado' })
     }
+
+    const resultado = await pool.query(
+      `SELECT * FROM vw_detalles_perfil WHERE correo = $1`,
+      [usuarioRes.rows[0].correo]
+    )
 
     return res.json(resultado.rows[0])
   } catch (error) {
