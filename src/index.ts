@@ -4,6 +4,7 @@ import helmet from 'helmet'
 import dotenv from 'dotenv'
 import authRoutes from './routes/auth.routes'
 import perfilRoutes from './routes/perfil.routes'
+import obrasRoutes from './routes/obras.routes'
 dotenv.config()
 
 const app = express()
@@ -16,6 +17,7 @@ app.use(express.json())
 // Rutas
 app.use('/api/v1/auth', authRoutes)
 app.use('/api/v1/usuarios', perfilRoutes)
+app.use('/api/v1/obras', obrasRoutes)
 
 app.get('/', (req, res) => {
   res.json({ mensaje: 'ArtSpace API funcionando' })
