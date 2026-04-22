@@ -28,6 +28,7 @@ app.use('/api/v1/obras', obrasRoutes)
 app.use('/api/v1/obras/:id/likes', likesRoutes)
 app.use('/api/v1/obras/:id/comentarios', comentariosRoutes)
 app.use('/api/v1/admin', adminRoutes)
+app.use('/api/v1/usuarios', seguidoresRoutes)
 
 app.get('/', (req, res) => {
   res.json({ mensaje: 'ArtSpace API funcionando' })
