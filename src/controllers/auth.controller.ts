@@ -37,9 +37,10 @@ export const registro = async (req: Request, res: Response) => {
     )
 
     return res.status(201).json({ usuario, token })
-  } catch (error) {
-    return res.status(500).json({ error: 'Error en el servidor' })
-  }
+ } catch (error) {
+  console.error('Error registro:', error)
+  return res.status(500).json({ error: String(error) })
+}
 }
 
 export const login = async (req: Request, res: Response) => {
@@ -80,7 +81,8 @@ export const login = async (req: Request, res: Response) => {
       },
       token
     })
-  } catch (error) {
-    return res.status(500).json({ error: 'Error en el servidor' })
-  }
+} catch (error) {
+  console.error('Error login:', error)
+  return res.status(500).json({ error: String(error) })
+}
 }
