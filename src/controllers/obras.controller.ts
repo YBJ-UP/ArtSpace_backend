@@ -151,12 +151,11 @@ export const obtenerObraDetalle = async (
 }
 
 export const editarObra = async (req: RequestConUsuario, res: Response) => {
-  const { id } = req.params
+  const id = req.params.id as string
   const { titulo, descripcion, subcategorias } = req.body
+  const archivo = req.file
 
   try {
-    await pool.query(`SET app.current_user_id = '${req.usuario!.id_usuario}'`)
-
     const obra = await pool.query(
       'SELECT id_obra FROM obras WHERE id_obra = $1 AND id_usuario = $2',
       [id, req.usuario!.id_usuario]
@@ -187,6 +186,23 @@ export const editarObra = async (req: RequestConUsuario, res: Response) => {
       await pool.query(
         `UPDATE obras SET ${campos.join(', ')} WHERE id_obra = $${contador}`,
         valores
+      )
+    }
+
+    if (archivo) {
+      const imagenUrl = await new Promise<string>((resolve, reject) => {
+        cloudinary.uploader.upload_stream(
+          { folder: 'artspace/obras' },
+          (error, result) => {
+            if (error) reject(error)
+            else resolve(result!.secure_url)
+          }
+        ).end(archivo.buffer)
+      })
+
+      await pool.query(
+        `UPDATE media SET archivo = $1 WHERE id_obra = $2`,
+        [imagenUrl, id]
       )
     }
 
@@ -231,6 +247,24 @@ export const eliminarObra = async (req: RequestConUsuario, res: Response) => {
     await pool.query('DELETE FROM obras WHERE id_obra = $1', [id])
 
     return res.json({ mensaje: 'Obra eliminada correctamente' })
+  } catch (error) {
+    return res.status(500).json({ error: 'Error en el servidor' })
+  }
+}
+
+export const obtenerObrasPorUsuario = async (
+  req: RequestConUsuario,
+  res: Response
+) => {
+  const id = req.params.id as string
+
+  try {
+    const resultado = await pool.query(
+      `SELECT * FROM vw_detalles_obra WHERE id_usuario = $1 ORDER BY fecha_publicacion DESC`,
+      [id]
+    )
+
+    return res.json(resultado.rows)
   } catch (error) {
     return res.status(500).json({ error: 'Error en el servidor' })
   }

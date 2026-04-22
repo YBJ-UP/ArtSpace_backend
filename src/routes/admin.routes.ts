@@ -2,6 +2,7 @@ import { Router } from 'express'
 import {
   obtenerUsuarios,
   cambiarRolUsuario,
+  cambiarEstadoUsuario,
   eliminarUsuario,
   obtenerTodasLasObras,
   obtenerTodosLosComentarios,
@@ -20,6 +21,7 @@ router.use(verificarToken, soloAdmin)
 // Usuarios
 router.get('/usuarios', obtenerUsuarios)
 router.put('/usuarios/:id/rol', cambiarRolUsuario)
+router.put('/usuarios/:id/estado', cambiarEstadoUsuario)
 router.delete('/usuarios/:id', eliminarUsuario)
 
 // Obras

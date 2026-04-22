@@ -30,7 +30,7 @@ export const cambiarRolUsuario = async (
   const { rol } = req.body
 
   try {
-    if (!['artista', 'admin'].includes(rol)) {
+    if (!['usuario', 'artista', 'admin'].includes(rol)) {
       return res.status(400).json({ error: 'Rol inválido' })
     }
 
@@ -180,6 +180,35 @@ export const crearSubcategoria = async (
     )
 
     return res.status(201).json(resultado.rows[0])
+  } catch (error) {
+    return res.status(500).json({ error: 'Error en el servidor' })
+  }
+}
+
+export const cambiarEstadoUsuario = async (
+  req: RequestConUsuario,
+  res: Response
+) => {
+  const id = req.params.id as string
+  const { activo } = req.body
+
+  try {
+    if (typeof activo !== 'boolean') {
+      return res.status(400).json({ error: 'El campo activo debe ser true o false' })
+    }
+
+    const resultado = await pool.query(
+      `UPDATE usuarios SET activo = $1
+       WHERE id_usuario = $2
+       RETURNING id_usuario, nombre, correo, rol, activo`,
+      [activo, id]
+    )
+
+    if (resultado.rows.length === 0) {
+      return res.status(404).json({ error: 'Usuario no encontrado' })
+    }
+
+    return res.json(resultado.rows[0])
   } catch (error) {
     return res.status(500).json({ error: 'Error en el servidor' })
   }

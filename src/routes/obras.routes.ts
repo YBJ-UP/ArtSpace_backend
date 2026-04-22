@@ -3,6 +3,7 @@ import {
   crearObra,
   obtenerObras,
   obtenerObraDetalle,
+  obtenerObrasPorUsuario,
   editarObra,
   eliminarObra,
   obtenerObrasFeed
@@ -13,10 +14,11 @@ import { upload } from '../middlewares/upload'
 const router = Router()
 
 router.get('/feed', verificarToken, obtenerObrasFeed)
+router.get('/usuario/:id', verificarToken, obtenerObrasPorUsuario)
 router.get('/', verificarToken, obtenerObras)
 router.get('/:id', verificarToken, obtenerObraDetalle)
 router.post('/', verificarToken, upload.single('imagen'), crearObra)
-router.put('/:id', verificarToken, editarObra)
+router.put('/:id', verificarToken, upload.single('imagen'), editarObra)
 router.delete('/:id', verificarToken, eliminarObra)
 
 export default router

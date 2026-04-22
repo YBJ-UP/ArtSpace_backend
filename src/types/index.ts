@@ -3,7 +3,8 @@ export interface Usuario {
   nombre: string
   correo: string
   password: string
-  rol: 'artista' | 'admin'
+  rol: 'usuario' | 'artista' | 'admin'
+  activo: boolean
   fecha_registro: Date
 }
 
