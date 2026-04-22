@@ -84,18 +84,7 @@ export const obtenerTodasLasObras = async (
 ) => {
   try {
     const resultado = await pool.query(
-      `SELECT o.id_obra, o.titulo, o.fecha_publicacion,
-              u.nombre AS autor, u.id_usuario,
-              m.archivo AS imagen,
-              COUNT(DISTINCT l.id_like) AS likes,
-              COUNT(DISTINCT c.id_comentario) AS comentarios
-       FROM obras o
-       JOIN usuarios u ON o.id_usuario = u.id_usuario
-       LEFT JOIN media m ON o.id_obra = m.id_obra
-       LEFT JOIN likes l ON o.id_obra = l.id_obra
-       LEFT JOIN comentarios c ON o.id_obra = c.id_obra
-       GROUP BY o.id_obra, u.nombre, u.id_usuario, m.archivo
-       ORDER BY o.fecha_publicacion DESC`
+      `SELECT * FROM vw_detalles_obra ORDER BY fecha_publicacion DESC`
     )
 
     return res.json(resultado.rows)
