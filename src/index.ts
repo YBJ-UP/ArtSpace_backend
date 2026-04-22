@@ -7,6 +7,7 @@ import perfilRoutes from './routes/perfil.routes'
 import obrasRoutes from './routes/obras.routes'
 import likesRoutes from './routes/likes.routes'
 import comentariosRoutes from './routes/comentarios.routes'
+import seguidoresRoutes from './routes/seguidores.routes'
 dotenv.config()
 
 const app = express()
