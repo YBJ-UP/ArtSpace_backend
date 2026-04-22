@@ -155,10 +155,7 @@ export const editarObra = async (req: RequestConUsuario, res: Response) => {
   const { titulo, descripcion, subcategorias } = req.body
 
   try {
-    await pool.query(
-      `SET LOCAL app.current_user_id = $1`,
-      [req.usuario!.id_usuario]
-    )
+    await pool.query(`SET app.current_user_id = '${req.usuario!.id_usuario}'`)
 
     const obra = await pool.query(
       'SELECT id_obra FROM obras WHERE id_obra = $1 AND id_usuario = $2',
@@ -213,10 +210,7 @@ export const eliminarObra = async (req: RequestConUsuario, res: Response) => {
   const { id } = req.params
 
   try {
-    await pool.query(
-      `SET LOCAL app.current_user_id = $1`,
-      [req.usuario!.id_usuario]
-    )
+    await pool.query(`SET app.current_user_id = '${req.usuario!.id_usuario}'`)
 
     const obra = await pool.query(
       'SELECT id_obra, id_usuario FROM obras WHERE id_obra = $1',

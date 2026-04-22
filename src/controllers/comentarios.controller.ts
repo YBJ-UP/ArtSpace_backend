@@ -83,18 +83,8 @@ export const eliminarComentario = async (
       return res.status(403).json({ error: 'No tienes permiso para eliminar este comentario' })
     }
 
-    const client = await pool.connect()
-    try {
-      await client.query('BEGIN')
-      await client.query('SET LOCAL app.current_user_id = $1', [comentario.rows[0].id_usuario])
-      await client.query('DELETE FROM comentarios WHERE id_comentario = $1', [idComentario])
-      await client.query('COMMIT')
-    } catch (err) {
-      await client.query('ROLLBACK')
-      throw err
-    } finally {
-      client.release()
-    }
+    await pool.query(`SET app.current_user_id = '${comentario.rows[0].id_usuario}'`)
+    await pool.query('DELETE FROM comentarios WHERE id_comentario = $1', [idComentario])
 
     return res.json({ mensaje: 'Comentario eliminado' })
   } catch (error) {

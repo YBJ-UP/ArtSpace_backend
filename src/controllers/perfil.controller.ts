@@ -53,10 +53,7 @@ export const editarPerfil = async (
 
   try {
     // Decirle a PostgreSQL quién es el usuario actual
-    await pool.query(
-      `SET LOCAL app.current_user_id = $1`,
-      [req.usuario!.id_usuario]
-    )
+    await pool.query(`SET app.current_user_id = '${req.usuario!.id_usuario}'`)
 
     let avatarUrl: string | undefined
 
@@ -109,6 +106,7 @@ export const editarPerfil = async (
 
     return res.json({ mensaje: 'Perfil actualizado correctamente' })
   } catch (error) {
-    return res.status(500).json({ error: 'Error en el servidor' })
-  }
+  console.error('Error editarPerfil:', error)
+  return res.status(500).json({ error: String(error) })
+}
 }
