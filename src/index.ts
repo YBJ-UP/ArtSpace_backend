@@ -5,6 +5,8 @@ import dotenv from 'dotenv'
 import authRoutes from './routes/auth.routes'
 import perfilRoutes from './routes/perfil.routes'
 import obrasRoutes from './routes/obras.routes'
+import likesRoutes from './routes/likes.routes'
+import comentariosRoutes from './routes/comentarios.routes'
 dotenv.config()
 
 const app = express()
@@ -18,6 +20,8 @@ app.use(express.json())
 app.use('/api/v1/auth', authRoutes)
 app.use('/api/v1/usuarios', perfilRoutes)
 app.use('/api/v1/obras', obrasRoutes)
+app.use('/api/v1/obras/:id/likes', likesRoutes)
+app.use('/api/v1/obras/:id/comentarios', comentariosRoutes)
 
 app.get('/', (req, res) => {
   res.json({ mensaje: 'ArtSpace API funcionando' })
