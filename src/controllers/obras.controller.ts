@@ -61,26 +61,30 @@ export const obtenerObras = async (req: RequestConUsuario, res: Response) => {
   const { categoria, subcategoria, busqueda } = req.query
 
   try {
-    let query = `SELECT * FROM vw_detalles_obra`
+    let query = `
+      SELECT vw.*, o.id_usuario
+      FROM vw_detalles_obra vw
+      JOIN obras o ON vw.id_obra = o.id_obra
+    `
 
     const condiciones: string[] = []
     const valores: any[] = []
     let contador = 1
 
     if (categoria) {
-      condiciones.push(`categoria = $${contador}`)
+      condiciones.push(`vw.categoria = $${contador}`)
       valores.push(categoria)
       contador++
     }
 
     if (subcategoria) {
-      condiciones.push(`subcategoria = $${contador}`)
+      condiciones.push(`vw.subcategoria = $${contador}`)
       valores.push(subcategoria)
       contador++
     }
 
     if (busqueda) {
-      condiciones.push(`(titulo ILIKE $${contador} OR autor ILIKE $${contador})`)
+      condiciones.push(`(vw.titulo ILIKE $${contador} OR vw.autor ILIKE $${contador})`)
       valores.push(`%${busqueda}%`)
       contador++
     }
@@ -89,7 +93,7 @@ export const obtenerObras = async (req: RequestConUsuario, res: Response) => {
       query += ` WHERE ${condiciones.join(' AND ')}`
     }
 
-    query += ` ORDER BY fecha_publicacion DESC`
+    query += ` ORDER BY vw.fecha_publicacion DESC`
 
     const resultado = await pool.query(query, valores)
     return res.json(resultado.rows)
@@ -106,7 +110,10 @@ export const obtenerObraDetalle = async (
 
   try {
     const obraResultado = await pool.query(
-      `SELECT * FROM vw_detalles_obra WHERE id_obra = $1`,
+      `SELECT vw.*, o.id_usuario
+       FROM vw_detalles_obra vw
+       JOIN obras o ON vw.id_obra = o.id_obra
+       WHERE vw.id_obra = $1`,
       [id]
     )
 

@@ -84,7 +84,10 @@ export const obtenerTodasLasObras = async (
 ) => {
   try {
     const resultado = await pool.query(
-      `SELECT * FROM vw_detalles_obra ORDER BY fecha_publicacion DESC`
+      `SELECT vw.*, o.id_usuario
+       FROM vw_detalles_obra vw
+       JOIN obras o ON vw.id_obra = o.id_obra
+       ORDER BY vw.fecha_publicacion DESC`
     )
 
     return res.json(resultado.rows)
