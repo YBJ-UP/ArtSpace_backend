@@ -19,9 +19,11 @@ const PORT = process.env.PORT || 4000
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 100,
-  message: { error: 'Demasiadas peticiones, intenta más tarde' }
+  message: { error: 'Demasiadas peticiones, intenta más tarde' },
+  validate: { xForwardedForHeader: false }
 })
 
+app.set('trust proxy', 1)
 app.use(helmet())
 app.use(cors())
 app.use(express.json())
