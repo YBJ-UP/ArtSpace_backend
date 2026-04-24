@@ -287,12 +287,13 @@ export const obtenerObrasPorUsuario = async (
 export const obtenerCategorias = async (_req: RequestConUsuario, res: Response) => {
   try {
     const resultado = await pool.query(
-      `SELECT c.id_categoria, c.nombre,
+      `SELECT c.id_categoria,
+              convert_from(convert_to(c.nombre, 'LATIN1'), 'UTF8') AS nombre,
               COALESCE(
                 JSON_AGG(
                   JSON_BUILD_OBJECT(
                     'id_subcategoria', s.id_subcategoria,
-                    'nombre', s.nombre
+                    'nombre', convert_from(convert_to(s.nombre, 'LATIN1'), 'UTF8')
                   )
                 ) FILTER (WHERE s.id_subcategoria IS NOT NULL), '[]'
               ) AS subcategorias
