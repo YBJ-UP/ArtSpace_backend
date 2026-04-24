@@ -73,8 +73,18 @@ export const obtenerObras = async (req: RequestConUsuario, res: Response) => {
     let contador = 1
 
     if (categoria) {
-      condiciones.push(`vw.categoria = $${contador}`)
-      valores.push(categoria)
+      const esId = !isNaN(Number(categoria))
+      if (esId) {
+        condiciones.push(`
+          vw.id_obra IN (
+            SELECT id_obra FROM obra_subcategoria WHERE id_subcategoria = $${contador}
+          )
+        `)
+        valores.push(Number(categoria))
+      } else {
+        condiciones.push(`vw.categoria = $${contador}`)
+        valores.push(categoria)
+      }
       contador++
     }
 
