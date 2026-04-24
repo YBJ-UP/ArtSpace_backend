@@ -62,9 +62,10 @@ export const obtenerObras = async (req: RequestConUsuario, res: Response) => {
 
   try {
     let query = `
-      SELECT vw.*, o.id_usuario
+      SELECT vw.*, o.id_usuario, m.archivo AS imagen
       FROM vw_detalles_obra vw
       JOIN obras o ON vw.id_obra = o.id_obra
+      LEFT JOIN media m ON vw.id_obra = m.id_obra
     `
 
     const condiciones: string[] = []
@@ -110,9 +111,10 @@ export const obtenerObraDetalle = async (
 
   try {
     const obraResultado = await pool.query(
-      `SELECT vw.*, o.id_usuario
+      `SELECT vw.*, o.id_usuario, m.archivo AS imagen
        FROM vw_detalles_obra vw
        JOIN obras o ON vw.id_obra = o.id_obra
+       LEFT JOIN media m ON vw.id_obra = m.id_obra
        WHERE vw.id_obra = $1`,
       [id]
     )
@@ -267,9 +269,10 @@ export const obtenerObrasPorUsuario = async (
 
   try {
     const resultado = await pool.query(
-      `SELECT vw.*, o.id_usuario
+      `SELECT vw.*, o.id_usuario, m.archivo AS imagen
        FROM vw_detalles_obra vw
        JOIN obras o ON vw.id_obra = o.id_obra
+       LEFT JOIN media m ON vw.id_obra = m.id_obra
        WHERE o.id_usuario = $1
        ORDER BY vw.fecha_publicacion DESC`,
       [id]
