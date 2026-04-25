@@ -148,6 +148,7 @@ export const obtenerObraDetalle = async (
                     'contenido', r.contenido,
                     'fecha', r.fecha,
                     'autor', ur.nombre,
+                    'id_usuario', ur.id_usuario,
                     'avatar', pr.avatar
                   )
                 ) FILTER (WHERE r.id_respuesta IS NOT NULL), '[]'
