@@ -44,7 +44,7 @@ export const registro = async (req: Request, res: Response) => {
     const usuario = resultado.rows[0]
 
     await pool.query(
-      'INSERT INTO perfiles (id_usuario) VALUES ($1)',
+      'INSERT INTO perfiles (id_usuario) VALUES ($1) ON CONFLICT (id_usuario) DO NOTHING',
       [usuario.id_usuario]
     )
 
