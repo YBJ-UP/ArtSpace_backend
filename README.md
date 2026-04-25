@@ -19,6 +19,18 @@ ArtSpace_backend/
 
 El backend está **completamente desacoplado** del frontend. Se comunican exclusivamente vía API REST bajo el prefijo `/api/v1`. La base de datos, el almacenamiento de imágenes (Cloudinary) y la lógica de autenticación son servicios independientes.
 
+## Despliegue
+
+| Servicio | URL |
+|---|---|
+| Frontend (Vercel) | [art-space-frontend-eta.vercel.app](https://art-space-frontend-eta.vercel.app/) |
+| Backend (Railway) | [artspacebackend-production.up.railway.app](https://artspacebackend-production.up.railway.app/) |
+
+
+El backend está desplegado en **Railway** con la base de datos PostgreSQL provisionada en el mismo servicio. El frontend está desplegado en **Vercel**.
+
+Repositorio: [github.com/YBJ-UP/ArtSpace_backend](https://github.com/YBJ-UP/ArtSpace_backend)
+
 ---
 
 ## Tecnologías
@@ -153,15 +165,16 @@ npm start
 
 Las imágenes de obras y avatares se suben directamente a **Cloudinary** desde el servidor usando `upload_stream`. Las URLs resultantes (HTTPS) se almacenan en la base de datos.
 
+## Pruebas en Postman
 ---
+<img width="1600" height="955" alt="WhatsApp Image 2026-04-22 at 4 50 06 PM" src="https://github.com/user-attachments/assets/f95dd9ee-dc8e-4bac-828c-eef675840ae4" />
 
-## Despliegue
+<img width="1600" height="844" alt="WhatsApp Image 2026-04-22 at 4 50 08 PM" src="https://github.com/user-attachments/assets/d3f7b50a-a68e-4d49-b724-e2c35eca401f" />
+<img width="1600" height="919" alt="WhatsApp Image 2026-04-22 at 4 50 08 PM (1)" src="https://github.com/user-attachments/assets/01394c90-ace4-4e7f-bc41-8e4a44a5b7a9" />
+<img width="1600" height="929" alt="WhatsApp Image 2026-04-22 at 4 50 08 PM (2)" src="https://github.com/user-attachments/assets/322179b1-9da6-4e8f-9ec4-f257fbb62bbc" />
+<img width="1600" height="964" alt="WhatsApp Image 2026-04-22 at 4 50 07 PM" src="https://github.com/user-attachments/assets/2507effb-8eff-4338-82eb-ee36768ab197" />
+<img width="1600" height="929" alt="WhatsApp Image 2026-04-22 at 4 50 07 PM (1)" src="https://github.com/user-attachments/assets/a006bb9e-0607-4383-832f-147ba65ec60e" />
 
-| Servicio | URL |
-|---|---|
-| Frontend (Vercel) | [art-space-frontend-eta.vercel.app](https://art-space-frontend-eta.vercel.app/) |
-| Backend (Railway) | [artspacebackend-production.up.railway.app](https://artspacebackend-production.up.railway.app/) |
 
-El backend está desplegado en **Railway** con la base de datos PostgreSQL provisionada en el mismo servicio. El frontend está desplegado en **Vercel**.
 
-Repositorio: [github.com/YBJ-UP/ArtSpace_backend](https://github.com/YBJ-UP/ArtSpace_backend)
+
