@@ -4,7 +4,11 @@ import pool from '../services/db'
 import cloudinary from '../services/cloudinary'
 
 export const crearObra = async (req: RequestConUsuario, res: Response) => {
-  const { titulo, descripcion, subcategorias } = req.body
+  const { titulo, descripcion } = req.body
+  let subcategorias = req.body.subcategorias
+  if (typeof subcategorias === 'string') {
+    try { subcategorias = JSON.parse(subcategorias) } catch { subcategorias = null }
+  }
   const archivo = req.file
 
   try {
@@ -171,7 +175,11 @@ export const obtenerObraDetalle = async (
 
 export const editarObra = async (req: RequestConUsuario, res: Response) => {
   const id = req.params.id as string
-  const { titulo, descripcion, subcategorias } = req.body
+  const { titulo, descripcion } = req.body
+  let subcategorias = req.body.subcategorias
+  if (typeof subcategorias === 'string') {
+    try { subcategorias = JSON.parse(subcategorias) } catch { subcategorias = null }
+  }
   const archivo = req.file
 
   try {
