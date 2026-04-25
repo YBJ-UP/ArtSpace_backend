@@ -164,8 +164,14 @@ export const obtenerObraDetalle = async (
       [id]
     )
 
+    const likeResultado = await pool.query(
+      `SELECT 1 FROM likes WHERE id_obra = $1 AND id_usuario = $2`,
+      [id, req.usuario!.id_usuario]
+    )
+
     return res.json({
       ...obraResultado.rows[0],
+      usuario_ya_dio_like: likeResultado.rows.length > 0,
       comentarios: comentariosResultado.rows
     })
   } catch (error) {
